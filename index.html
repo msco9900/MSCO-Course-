@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSCO ACADEMY | Course Enrollment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Education-themed palette: Deep Indigo & Soft Cyan */
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --accent: #06b6d4;
+            --bg-dark: #0f172a;
+            --bg-gradient: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+            --glass: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body { 
+            background: var(--bg-dark);
+            background-image: var(--bg-gradient);
+            color: var(--text-main); 
+            min-height: 100vh;
+        }
+
+        .overlay { 
+            min-height: 100vh; 
+            padding: 20px; 
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.1) 0px, transparent 50%);
+        }
+
+        .container { width: 100%; max-width: 850px; margin: 0 auto; }
+
+        /* Navigation */
+        nav { position: fixed; top: 25px; right: 25px; z-index: 1000; }
+        .menu-dots { 
+            font-size: 28px; cursor: pointer; color: var(--accent); 
+            transition: 0.4s; background: var(--glass); 
+            width: 45px; height: 45px; display: flex; align-items: center; 
+            justify-content: center; border-radius: 12px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+        .menu-dots:hover { background: var(--primary); color: #fff; }
+        
+        .dropdown { 
+            display: none; position: absolute; right: 0; top: 55px;
+            background: #1e293b; border: 1px solid var(--border); 
+            border-radius: 14px; width: 200px; backdrop-filter: blur(20px); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); overflow: hidden;
+        }
+        .dropdown a { 
+            display: block; padding: 14px 18px; color: #cbd5e1; text-decoration: none; 
+            font-size: 14px; transition: 0.3s;
+        }
+        .dropdown a:hover { background: var(--primary); color: #fff; }
+
+        /* Views */
+        .view { 
+            display: none; background: var(--glass); padding: 35px; 
+            border-radius: 24px; border: 1px solid var(--border); 
+            backdrop-filter: blur(15px); animation: fadeIn 0.5s ease-in-out;
+        }
+        .view.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        header h1 { 
+            font-family: 'Bebas Neue'; font-size: 4.5rem; 
+            background: linear-gradient(to bottom, #fff, var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-align: center; letter-spacing: 4px;
+        }
+        
+        .sec-title { 
+            font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.6rem; 
+            color: var(--accent); margin: 20px 0; border-left: 4px solid var(--primary);
+            padding-left: 15px;
+        }
+
+        input, select, textarea { 
+            background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border); 
+            padding: 12px 16px; color: #fff; border-radius: 10px; outline: none; 
+            width: 100%; transition: 0.3s;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(6, 182, 212, 0.2); }
+
+        .btn-main { 
+            width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff; border: none; font-weight: 700; font-size: 0.95rem;
+            border-radius: 12px; cursor: pointer; transition: 0.3s; margin-top: 15px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); }
+
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .admin-table th { color: var(--accent); text-align: left; padding: 12px; font-size: 12px; border-bottom: 2px solid var(--border); }
+        .admin-table td { padding: 15px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+
+        .status-badge { font-size: 9px; padding: 4px 10px; border-radius: 15px; font-weight: 700; }
+        .status-open { background: #10b981; color: #fff; }
+        .status-closed { background: #64748b; color: #fff; }
+
+        .course-card { 
+            background: rgba(255, 255, 255, 0.03); padding: 20px; border-radius: 18px; 
+            border: 1px solid var(--border); margin-bottom: 15px; transition: 0.3s;
+        }
+        .course-card:hover { border-color: var(--primary); background: rgba(255, 255, 255, 0.05); }
+
+        footer { text-align: center; padding: 60px 0; opacity: 0.5; font-size: 11px; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div class="overlay">
+    <div class="container">
+        <nav>
+            <div class="menu-dots" id="dots-btn">⋮</div>
+            <div class="dropdown" id="mainMenu">
+                <a href="#" id="homeLink">🎓 All Courses</a>
+                <a href="#" id="loginLink">🔐 Instructor Login</a>
+                <a href="#" id="dashLink" style="display:none;">🛠 Admin Panel</a>
+                <a href="#" id="logoutLink" style="display:none;">🚪 Logout</a>
+            </div>
+        </nav>
+
+        <header style="padding: 60px 0 40px; text-align: center;">
+            <h1>MSCO ACADEMY</h1>
+            <p style="color:var(--accent); font-weight: 600; letter-spacing: 3px; font-size: 12px; text-transform: uppercase;">Empowering Your Learning Journey</p>
+        </header>
+
+        <div id="view-home" class="view active">
+            <h2 class="sec-title">AVAILABLE COURSES</h2>
+            <div id="public-list"></div>
+        </div>
+
+        <div id="view-apply" class="view">
+            <h2 id="apply-title" class="sec-title">ENROLLMENT FORM</h2>
+            <form action="https://formspree.io/f/xnjwdgaa" method="POST" id="dynamic-form">
+                <input type="hidden" name="Course_Title" id="form-pos-hidden">
+                <div id="form-questions-container"></div>
+                <button type="submit" class="btn-main">CONFIRM ENROLLMENT</button>
+            </form>
+        </div>
+
+        <div id="view-login" class="view">
+            <h2 class="sec-title">ADMIN ACCESS</h2>
+            <input type="password" id="passInput" placeholder="Enter Faculty Access Key" style="margin-top:10px;">
+            <button class="btn-main" id="login-btn">LOGIN</button>
+        </div>
+
+        <div id="view-dash" class="view">
+            <div style="background:var(--primary); padding:8px 15px; border-radius:8px; font-size:11px; font-weight: 700; display:inline-block; margin-bottom:20px;">
+                ACTIVE FACULTY: <span id="op-name"></span>
+            </div>
+            <h2 class="sec-title">CREATE NEW COURSE</h2>
+            <input type="text" id="admin-title" placeholder="Course Name (e.g. Full Stack Development)" style="margin-bottom:15px;">
+            <div id="questions-builder"></div>
+            <button class="btn-main" id="publish-btn">PUBLISH COURSE</button>
+
+            <h2 class="sec-title" style="margin-top:40px;">COURSE MANAGEMENT</h2>
+            <table class="admin-table">
+                <thead><tr><th>Course</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="admin-live-table"></tbody>
+            </table>
+        </div>
+
+        <footer>© 2026 MSCO ACADEMY | TECH EDUCATION SYSTEM</footer>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue, get, update, remove } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+    // UPDATED Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyCBirOOy2uQbVHcV5k7wq0cgG8IE8K-H_s",
+        authDomain: "msco-it-limited.firebaseapp.com",
+        databaseURL: "https://msco-it-limited-default-rtdb.firebaseio.com",
+        projectId: "msco-it-limited",
+        storageBucket: "msco-it-limited.firebasestorage.app",
+        messagingSenderId: "765616797625",
+        appId: "1:765616797625:web:d9e762751862c3c009e868",
+        measurementId: "G-20TL5KFELZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    const ADMIN_EMAIL = "admin@msco.com";
+
+    // UI Navigation
+    window.showView = function(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('mainMenu').style.display = 'none';
+        if(id === 'view-home') loadPublicPosts();
+        if(id === 'view-dash') loadAdminTable();
+    }
+
+    document.getElementById('dots-btn').onclick = () => {
+        const m = document.getElementById('mainMenu');
+        m.style.display = m.style.display === 'block' ? 'none' : 'block';
+    };
+
+    document.getElementById('homeLink').onclick = () => showView('view-home');
+    document.getElementById('loginLink').onclick = () => showView('view-login');
+    document.getElementById('dashLink').onclick = () => showView('view-dash');
+    
+    document.getElementById('logoutLink').onclick = async () => {
+        await signOut(auth);
+        localStorage.clear();
+        location.reload();
+    };
+
+    // Auth Logic
+    document.getElementById('login-btn').onclick = async () => {
+        const pass = document.getElementById('passInput').value;
+        try {
+            await signInWithEmailAndPassword(auth, ADMIN_EMAIL, pass);
+            localStorage.setItem('role', 'admin');
+            showView('view-dash');
+        } catch (e) { alert("Invalid Access Key"); }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('loginLink').style.display = 'none';
+            document.getElementById('dashLink').style.display = 'block';
+            document.getElementById('logoutLink').style.display = 'block';
+            document.getElementById('op-name').innerText = "Shafin Mirza";
+        }
+    });
+
+    // Form Builder (7 questions required as per your previous logic)
+    const builder = document.getElementById('questions-builder');
+    for(let i=1; i<=7; i++) {
+        builder.innerHTML += `
+            <div class="course-card">
+                <p style="font-size:12px; color:var(--accent); margin-bottom:10px;">Input Field ${i}</p>
+                <input type="text" id="q-text-${i}" placeholder="Question (e.g. Student Name)">
+                <select id="q-type-${i}" style="margin-top:10px;">
+                    <option value="short">Short Answer</option>
+                    <option value="para">Paragraph</option>
+                </select>
+            </div>`;
+    }
+
+    document.getElementById('publish-btn').onclick = () => {
+        const title = document.getElementById('admin-title').value;
+        let questions = [];
+        for(let i=1; i<=7; i++) {
+            const text = document.getElementById(`q-text-${i}`).value;
+            if(text) questions.push({ text, type: document.getElementById(`q-type-${i}`).value });
+        }
+        if(questions.length < 5 || !title) return alert("Fill all details");
+        
+        push(ref(db, 'academy_courses'), { title, questions, status: 'open' }).then(() => {
+            alert("Course Published!");
+            showView('view-home');
+        });
+    };
+
+    function loadPublicPosts() {
+        onValue(ref(db, 'academy_courses'), (snap) => {
+            const data = snap.val() || {};
+            const container = document.getElementById('public-list');
+            container.innerHTML = '';
+            Object.keys(data).forEach(key => {
+                const item = data[key];
+                container.innerHTML += `
+                    <div class="course-card" onclick="openEnroll('${key}')" style="cursor:pointer;">
+                        <div style="display:flex; justify-content:space-between;">
+                            <h3>${item.title}</h3>
+                            <span class="status-badge status-${item.status}">${item.status}</span>
+                        </div>
+                        <p style="font-size:11px; margin-top:10px; color:var(--accent);">Enrollment Open &gt;</p>
+                    </div>`;
+            });
+        });
+    }
+
+    window.openEnroll = async (key) => {
+        const snap = await get(ref(db, 'academy_courses/' + key));
+        const course = snap.val();
+        if(course.status !== 'open') return alert("Enrollment Closed");
+        
+        showView('view-apply');
+        document.getElementById('apply-title').innerText = course.title;
+        document.getElementById('form-pos-hidden').value = course.title;
+        const container = document.getElementById('form-questions-container');
+        container.innerHTML = '';
+        course.questions.forEach((q, idx) => {
+            container.innerHTML += `
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; margin-bottom:8px; font-size:14px;">${q.text}</label>
+                    ${q.type === 'short' ? '<input type="text" name="Q'+idx+'" required>' : '<textarea name="Q'+idx+'" required></textarea>'}
+                </div>`;
+        });
+    }
+
+    async function loadAdminTable() {
+        const snap = await get(ref(db, 'academy_courses'));
+        const data = snap.val() || {};
+        const tbody = document.getElementById('admin-live-table');
+        tbody.innerHTML = '';
+        Object.keys(data).forEach(key => {
+            const item = data[key];
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.title}</td>
+                    <td><span class="status-badge status-${item.status}">${item.status}</span></td>
+                    <td>
+                        <button onclick="toggleStatus('${key}', '${item.status}')" style="background:none; border:1px solid var(--accent); color:var(--accent); padding:4px 8px; border-radius:6px; cursor:pointer; font-size:10px;">Toggle</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    window.toggleStatus = (key, current) => {
+        update(ref(db, 'academy_courses/' + key), { status: current === 'open' ? 'closed' : 'open' }).then(loadAdminTable);
+    };
+
+    loadPublicPosts();
+</script>
+
+</body>
+</html>
